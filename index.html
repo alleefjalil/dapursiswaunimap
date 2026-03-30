@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dapur Siswa UniMAP Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --unimap-blue: #1e3a8a;
+            --unimap-light-blue: #3b82f6;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+        }
+
+        .unimap-gradient { 
+            background: linear-gradient(135deg, var(--unimap-blue) 0%, var(--unimap-light-blue) 100%); 
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .slot-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+
+        .slot-full {
+            background-color: #fef2f2;
+            border-color: #fee2e2;
+            color: #991b1b;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .slot-available {
+            background-color: #ffffff;
+            border-color: #f1f5f9;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        .slot-available:hover {
+            border-color: var(--unimap-light-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        input:focus {
+            border-color: var(--unimap-light-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .terms-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .terms-list li::before {
+            content: "\f058";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--unimap-light-blue);
+        }
+
+        .logo-container {
+            background-color: white;
+            padding: 10px;
+            border-radius: 24px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="pb-10">
+
+    <!-- Landing View -->
+    <div id="landing-view" class="animate-fade-in min-h-screen flex flex-col">
+        <header class="unimap-gradient text-white pt-16 pb-24 px-6 rounded-b-[3.5rem] shadow-xl text-center relative overflow-hidden">
+            <div class="max-w-md mx-auto relative z-10">
+                <div class="logo-container">
+                    <img src="https://drive.google.com/thumbnail?id=1uEb-bSya-BQWQuTYGMNwMYNQL9gEq8Vg&sz=w500" alt="Logo UniMAP" class="h-20 w-auto">
+                </div>
+                <h1 class="text-3xl font-black tracking-tighter mb-1 uppercase">Dapur Siswa @ UniMAP</h1>
+                <p class="text-blue-100 text-sm font-semibold opacity-90 tracking-[0.15em] uppercase">tempahan penggunaan dapur</p>
+            </div>
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full"></div>
+        </header>
+
+        <main class="max-w-md mx-auto px-5 -mt-16 relative z-20 mb-10">
+            <div class="bg-white rounded-[2.5rem] p-8 card-shadow border border-slate-100">
+                <div class="mb-6 text-center">
+                    <h2 class="text-sm font-extrabold text-slate-800 uppercase tracking-tight">Terma & Syarat Penggunaan<br>Dapur Siswa @ UniMAP</h2>
+                    <div class="w-12 h-1 unimap-gradient mx-auto mt-3 rounded-full opacity-50"></div>
+                </div>
+
+                <ul class="terms-list text-sm text-slate-600 leading-relaxed">
+                    <li>
+                        <strong class="text-slate-800 block mb-1">1. Pengesahan Tempahan & Had Individu</strong>
+                        Penggunaan mestilah mengikut tarikh dan slot masa yang telah dipilih. Setiap tempahan adalah bersifat peribadi dan hanya sah untuk penggunaan seorang (1) individu sahaja bagi setiap slot yang didaftarkan.
+                    </li>
+                    <li>
+                        <strong class="text-slate-800 block mb-1">2. Had Masa Penggunaan</strong>
+                        Pengguna diwajibkan mematuhi had masa yang ditetapkan. Tempoh penggunaan dapur tidak boleh melebihi 20 minit bagi memberi laluan kepada pengguna seterusnya.
+                    </li>
+                    <li>
+                        <strong class="text-slate-800 block mb-1">3. Kebersihan & Peralatan</strong>
+                        Pengguna bertanggungjawab sepenuhnya ke atas kebersihan ruang dapur siswa. Bawa bekas atau pinggan sendiri dan kemas kawasan yang telah digunakan sebelum meninggalkan dapur.
+                    </li>
+                    <li>
+                        <strong class="text-slate-800 block mb-1">4. Bantuan & Aduan</strong>
+                        Sekiranya terdapat sebarang masalah teknikal atau kesulitan semasa proses tempahan dan penggunaan, sila hubungi pihak pengurusan melalui e-mel di: <span class="text-blue-600 font-bold">majlispengetua@unimap.edu.my</span>.
+                    </li>
+                </ul>
+
+                <div class="flex items-start mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <input type="checkbox" id="agreeTerms" class="custom-checkbox mt-1 border-slate-300 rounded text-blue-600 focus:ring-blue-500" onchange="toggleStartBtn()">
+                    <label for="agreeTerms" class="ml-3 text-sm font-bold text-slate-700 cursor-pointer select-none">
+                        Saya setuju untuk mengikut peraturan yang ditetapkan
+                    </label>
+                </div>
+
+                <button id="startBookingBtn" onclick="startBooking()" disabled class="w-full mt-6 py-5 px-6 unimap-gradient text-white rounded-[1.5rem] font-extrabold shadow-lg shadow-blue-200 flex items-center justify-center group active:scale-[0.98] transition-all opacity-50 cursor-not-allowed">
+                    Mula Tempahan
+                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Booking View -->
+    <div id="booking-view" class="hidden animate-fade-in">
+        <header class="unimap-gradient text-white pt-12 pb-24 px-6 rounded-b-[3.5rem] shadow-xl text-center relative overflow-hidden">
+            <div class="max-w-md mx-auto relative z-10">
+                <button onclick="goBackToLanding()" class="absolute left-0 top-1 text-white/80 hover:text-white transition-colors p-2" title="Kembali ke Terma & Syarat">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <div class="logo-container">
+                    <img src="https://drive.google.com/thumbnail?id=1uEb-bSya-BQWQuTYGMNwMYNQL9gEq8Vg&sz=w500" alt="Logo UniMAP" class="h-20 w-auto">
+                </div>
+                <h1 class="text-3xl font-black tracking-tighter mb-1 uppercase">Dapur Siswa @ UniMAP</h1>
+                <p class="text-blue-100 text-sm font-semibold opacity-90 tracking-[0.15em] uppercase">tempahan penggunaan dapur</p>
+            </div>
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full"></div>
+        </header>
+
+        <main class="max-w-md mx-auto px-5 -mt-16 relative z-20">
+            <!-- Step 1: Lokasi -->
+            <section id="step-1" class="bg-white rounded-3xl p-6 card-shadow mb-6 border border-slate-100">
+                <div class="flex items-center justify-center mb-6">
+                    <span class="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3">1</span>
+                    <h2 class="text-lg font-bold text-slate-800 tracking-tight">Pilih Lokasi Dapur Siswa</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectLocation('KKTAR')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KKTAR</button>
+                    <button onclick="selectLocation('KPPP')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KPPP</button>
+                    <button onclick="selectLocation('UNICITI')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">UNICITI</button>
+                    <button onclick="selectLocation('KPTAG')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KPTAG</button>
+                    <button onclick="selectLocation('IRC')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">IRC</button>
+                    <button onclick="selectLocation('KPTAAB')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KPTAAB</button>
+                </div>
+            </section>
+
+            <!-- Step 2: Tarikh -->
+            <section id="step-2" class="hidden animate-fade-in">
+                <div class="bg-white rounded-3xl p-6 card-shadow mb-6 border border-slate-100">
+                    <div class="flex items-center justify-center mb-6">
+                        <span class="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3">2</span>
+                        <h2 class="text-lg font-bold text-slate-800 tracking-tight">Pilih Tarikh Tempahan</h2>
+                    </div>
+                    
+                    <input type="date" id="bookingDate" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-semibold text-slate-700 focus:outline-none transition-all mb-6">
+                    
+                    <button onclick="fetchSlots()" id="btn-next" class="w-full py-4 px-6 unimap-gradient text-white rounded-2xl font-extrabold shadow-lg flex items-center justify-center group">
+                        <span id="btn-next-text">Seterusnya</span>
+                        <i class="fas fa-chevron-right ml-3 text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+
+                    <div id="loading-slots" class="hidden text-center py-8">
+                        <div class="loader !border-blue-200 !border-t-blue-600"></div>
+                    </div>
+
+                    <div id="slots-container" class="hidden mt-8 animate-fade-in">
+                        <div class="flex items-center justify-center mb-6">
+                            <span class="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3">3</span>
+                            <h2 class="text-lg font-bold text-slate-800 tracking-tight">Pilih Masa (20 Minit)</h2>
+                        </div>
+                        <div class="space-y-8">
+                            <div id="grid-morning"></div>
+                            <div id="grid-afternoon"></div>
+                            <div id="grid-night"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Success View -->
+    <div id="success-view" class="hidden animate-fade-in min-h-screen flex flex-col bg-white">
+        <div class="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
+            <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mb-6 animate-bounce">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Tempahan Berjaya!</h1>
+            <p class="text-slate-500 mb-8 font-medium">Data tempahan anda telah direkodkan ke dalam sistem.</p>
+            <div class="w-full max-w-md bg-slate-50 rounded-[2rem] p-6 text-left border border-slate-100 card-shadow mb-8">
+                <div class="space-y-4">
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nama Penuh</p><p id="res-name" class="font-bold text-slate-800"></p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No. Matrik</p><p id="res-id" class="font-bold text-slate-800"></p></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lokasi</p><p id="res-loc" class="font-bold text-slate-800"></p></div>
+                        <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Slot Masa</p><p id="res-slot" class="font-bold text-slate-800"></p></div>
+                    </div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tarikh</p><p id="res-date" class="font-bold text-slate-800"></p></div>
+                </div>
+            </div>
+            <button onclick="resetApp()" class="w-full max-w-xs py-4 px-6 unimap-gradient text-white rounded-2xl font-extrabold shadow-lg flex items-center justify-center">Selesai</button>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center">
+        <div class="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] w-full max-w-sm p-8 shadow-2xl animate-fade-in">
+            <h2 class="text-xl font-extrabold mb-2 text-slate-900 text-center tracking-tight">Maklumat Pelajar</h2>
+            <div id="summary-text" class="text-xs font-bold text-blue-700 mb-6 text-center bg-blue-50 py-3 px-4 rounded-2xl border border-blue-100"></div>
+            <div class="space-y-4 max-h-[50vh] overflow-y-auto px-1">
+                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Penuh</label><input type="text" id="userName" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-semibold outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">No. Matrik</label><input type="text" id="userId" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-semibold outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">E-mel Rasmi (@studentmail.unimap.edu.my)</label><input type="email" id="userEmail" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-semibold outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">No. Telefon</label><input type="tel" id="userPhone" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-semibold outline-none"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-8">
+                <button onclick="closeModal()" class="py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold hover:bg-slate-200 transition-colors">Batal</button>
+                <button onclick="submitBooking()" id="submit-btn" class="py-4 unimap-gradient text-white rounded-2xl font-extrabold shadow-lg shadow-blue-200">Sahkan</button>
+            </div>
+        </div>
+    </div>
+
+    <footer id="main-footer" class="mt-16 text-center px-6">
+        <div class="max-w-xs mx-auto border-t border-slate-200 pt-8">
+            <p class="text-[10px] font-bold text-slate-400 uppercase mb-3">Powered by</p>
+            <a href="https://rencreative.my" target="_blank" class="text-lg font-black text-slate-800">Rencreative<span class="text-blue-600">.my</span></a>
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 hidden bg-red-600 text-white px-8 py-4 rounded-2xl text-sm font-bold shadow-2xl z-[60] text-center min-w-[280px]"></div>
+
+    <script>
+        // API URL dikemaskini dengan URL baru yang anda berikan
+        const API_URL = "https://script.google.com/macros/s/AKfycbwiv4O95iOL1KL8uFf9nbwlLyFemuzLX_Lh9fliRO9Tln2yg-rl2A1ZRQynMFCZHw8d/exec"; 
+
+        let selectedLocation = "", selectedDate = "", selectedSlot = "";
+        const slots = {
+            morning: ["08.00 am – 08.20 am", "08.30 am – 08.50 am", "09.00 am – 09.20 am", "09.30 am – 09.50 am", "10.00 am – 10.20 am"],
+            afternoon: ["01.00 pm – 01.20 pm", "01.30 pm – 01.50 pm", "02.00 pm – 02.20 pm", "02.30 pm – 02.50 pm", "03.00 pm – 03.20 pm", "03.30 pm – 03.50 pm"],
+            night: ["06.30 pm – 06.50 pm", "07.00 pm – 07.20 pm", "07.30 pm – 07.50 pm", "08.00 pm – 08.20 pm", "08.30 pm – 08.50 pm", "09.00 pm – 09.20 pm", "09.30 pm – 09.50 pm", "10.00 pm – 10.20 pm", "10.30 pm – 10.50 pm"]
+        };
+
+        window.onload = function() {
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            const dateInput = document.getElementById('bookingDate');
+            if (dateInput) { dateInput.value = today; selectedDate = today; }
+        };
+
+        function toggleStartBtn() {
+            const checkbox = document.getElementById('agreeTerms');
+            const btn = document.getElementById('startBookingBtn');
+            btn.disabled = !checkbox.checked;
+            if (checkbox.checked) { btn.classList.remove('opacity-50', 'cursor-not-allowed'); } 
+            else { btn.classList.add('opacity-50', 'cursor-not-allowed'); }
+        }
+
+        function startBooking() { 
+            document.getElementById('landing-view').classList.add('hidden'); 
+            document.getElementById('booking-view').classList.remove('hidden'); 
+            window.scrollTo(0, 0); 
+        }
+
+        function goBackToLanding() { 
+            document.getElementById('booking-view').classList.add('hidden'); 
+            document.getElementById('landing-view').classList.remove('hidden'); 
+        }
+
+        function selectLocation(loc) {
+            selectedLocation = loc;
+            document.querySelectorAll('.loc-btn').forEach(btn => {
+                const isActive = btn.innerText.includes(loc);
+                btn.classList.toggle('border-blue-500', isActive);
+                btn.classList.toggle('bg-blue-50', isActive);
+            });
+            document.getElementById('step-2').classList.remove('hidden');
+            document.getElementById('slots-container').classList.add('hidden');
+            window.scrollTo({ top: document.getElementById('step-2').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        async function fetchSlots() {
+            selectedDate = document.getElementById('bookingDate').value;
+            if (!selectedDate) return showToast("Sila pilih tarikh.");
+            const btn = document.getElementById('btn-next');
+            btn.disabled = true; document.getElementById('btn-next-text').innerHTML = `<div class="loader"></div>`;
+            document.getElementById('loading-slots').classList.remove('hidden');
+            document.getElementById('slots-container').classList.add('hidden');
+            try {
+                const res = await fetch(`${API_URL}?action=getSlots&location=${selectedLocation}&date=${selectedDate}`);
+                const data = await res.json();
+                renderSlots(data.availability || {});
+                document.getElementById('slots-container').classList.remove('hidden');
+                setTimeout(() => document.getElementById('slots-container').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+            } catch (e) { showToast("Ralat sambungan. Sila muat semula."); }
+            finally { document.getElementById('loading-slots').classList.add('hidden'); btn.disabled = false; document.getElementById('btn-next-text').innerText = "Seterusnya"; }
+        }
+
+        function renderSlots(avail) {
+            const render = (id, list) => {
+                const container = document.getElementById(id); container.innerHTML = "";
+                list.forEach(slot => {
+                    const count = avail[slot] || 0; const isFull = count >= 3;
+                    const div = document.createElement('div');
+                    div.className = `slot-card border-2 p-4 rounded-2xl flex justify-between items-center mb-2 ${isFull ? 'slot-full' : 'slot-available'}`;
+                    if (!isFull) div.onclick = () => { 
+                        selectedSlot = slot; 
+                        document.getElementById('summary-text').innerHTML = `${selectedLocation} | ${selectedDate} | ${slot}`; 
+                        document.getElementById('booking-modal').classList.remove('hidden'); 
+                        document.body.style.overflow = 'hidden'; 
+                    };
+                    div.innerHTML = `<div><p class="text-sm font-extrabold tracking-tight">${slot}</p></div><span class="text-[10px] font-black p-1 rounded-xl ${isFull ? 'bg-red-200' : 'bg-emerald-100'}">${isFull ? 'PENUH' : (3-count)+' KEKOSONGAN'}</span>`;
+                    container.appendChild(div);
+                });
+            };
+            render('grid-morning', slots.morning); render('grid-afternoon', slots.afternoon); render('grid-night', slots.night);
+        }
+
+        function closeModal() { 
+            document.getElementById('booking-modal').classList.add('hidden'); 
+            document.body.style.overflow = 'auto';
+        }
+
+        async function submitBooking() {
+            const payload = { action: "addBooking", location: selectedLocation, date: selectedDate, slot: selectedSlot, name: document.getElementById('userName').value, id: document.getElementById('userId').value, email: document.getElementById('userEmail').value, phone: document.getElementById('userPhone').value };
+            if (!payload.name || !payload.id || !payload.email) return showToast("⚠️ Sila lengkapkan maklumat.");
+
+            const btn = document.getElementById('submit-btn'); btn.disabled = true; btn.innerHTML = `<div class="loader"></div>`;
+            try {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
+                
+                if (result.status === "success") {
+                    document.getElementById('res-name').innerText = payload.name;
+                    document.getElementById('res-id').innerText = payload.id;
+                    document.getElementById('res-loc').innerText = `Dapur Siswa @ ${payload.location}`;
+                    document.getElementById('res-slot').innerText = payload.slot;
+                    document.getElementById('res-date').innerText = payload.date;
+                    
+                    closeModal(); // Menutup popup
+                    document.getElementById('booking-view').classList.add('hidden');
+                    document.getElementById('success-view').classList.remove('hidden');
+                    document.getElementById('main-footer').classList.add('hidden');
+                    window.scrollTo(0, 0);
+                } else { 
+                    showToast(result.message || "Ralat semasa mendaftar."); 
+                    fetchSlots(); 
+                    btn.disabled = false;
+                    btn.innerText = "Sahkan";
+                }
+            } catch (e) { 
+                showToast("❌ Ralat sistem."); 
+                btn.disabled = false;
+                btn.innerText = "Sahkan";
+            }
+        }
+
+        function showToast(msg) { 
+            const t = document.getElementById('toast'); 
+            t.innerText = msg; 
+            t.classList.remove('hidden'); 
+            setTimeout(() => t.classList.add('hidden'), 5000); 
+        }
+
+        function resetApp() { location.reload(); }
+    </script>
+</body>
+</html>
