@@ -280,6 +280,7 @@
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 hidden bg-red-600 text-white px-8 py-4 rounded-2xl text-sm font-bold shadow-2xl z-[60] text-center min-w-[280px]"></div>
 
     <script>
+        // API URL dikemaskini dengan URL baru yang anda berikan
         const API_URL = "https://script.google.com/macros/s/AKfycbzzsnX4lJEmBZmJ6ryddKQOkRZKNw1aCyf_eehstLdmPmB1RF4ohg2G6V9kdjgIBjph/exec"; 
 
         let selectedLocation = "", selectedDate = "", selectedSlot = "";
@@ -327,10 +328,8 @@
             window.scrollTo({ top: document.getElementById('step-2').offsetTop - 20, behavior: 'smooth' });
         }
 
-        // Fungsi baru untuk menguruskan pertukaran tarikh
         function handleDateChange() {
             const slotsContainer = document.getElementById('slots-container');
-            // Hanya auto refresh jika pengguna sudah pernah menekan "Seterusnya" (slot sudah dipaparkan)
             if (!slotsContainer.classList.contains('hidden')) {
                 fetchSlots();
             }
