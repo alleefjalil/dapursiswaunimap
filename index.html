@@ -58,8 +58,7 @@
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-top: 3px solid #ffffff;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             animation: spin 0.8s linear infinite;
             display: inline-block;
         }
@@ -183,14 +182,8 @@
                     <span class="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3">1</span>
                     <h2 class="text-lg font-bold text-slate-800 tracking-tight">Pilih Lokasi Dapur Siswa</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="selectLocation('KKTAR')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KKTAR</button>
-                    <button onclick="selectLocation('KPPP')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KPPP</button>
-                    <button onclick="selectLocation('UNICITI')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">UNICITI</button>
-                    <button onclick="selectLocation('KPTAG')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KPTAG</button>
-                    <button onclick="selectLocation('IRC')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">IRC</button>
-                    <button onclick="selectLocation('KPTAAB')" class="loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center">KPTAAB</button>
-                </div>
+                <!-- Bahagian ini akan dijana oleh JavaScript -->
+                <div id="location-grid" class="grid grid-cols-2 gap-3"></div>
             </section>
 
             <!-- Step 2: Tarikh -->
@@ -280,8 +273,23 @@
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 hidden bg-red-600 text-white px-8 py-4 rounded-2xl text-sm font-bold shadow-2xl z-[60] text-center min-w-[280px]"></div>
 
     <script>
-        // API URL dikemaskini dengan URL baru yang anda berikan
-        const API_URL = "https://script.google.com/macros/s/AKfycbxvdpQ-2q5ha5FNEUdnwSZz-mfVD3_owmA_-qQfKy86L3AqbH7rkRt7r9NYYThOj4Ri/exec"; 
+        /**
+         * ==========================================
+         * KONFIGURASI LOKASI (SENANG EDIT DI SINI)
+         * ==========================================
+         * Ubah isActive: true (boleh guna) atau false (Akan Datang)
+         */
+        const LOCATIONS_CONFIG = [
+            { id: 'KKTAR', name: 'KKTAR', isActive: true },
+            { id: 'KPPP', name: 'KPPP', isActive: true },
+            { id: 'UNICITI', name: 'UNICITI', isActive: false },
+            { id: 'KPTAG', name: 'KPTAG', isActive: false },
+            { id: 'IRC', name: 'IRC', isActive: false },
+            { id: 'KPTAAB', name: 'KPTAAB', isActive: false }
+        ];
+
+        // URL Web App Google Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbzzsnX4lJEmBZmJ6ryddKQOkRZKNw1aCyf_eehstLdmPmB1RF4ohg2G6V9kdjgIBjph/exec"; 
 
         let selectedLocation = "", selectedDate = "", selectedSlot = "";
         const slots = {
@@ -295,7 +303,38 @@
             const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
             const dateInput = document.getElementById('bookingDate');
             if (dateInput) { dateInput.value = today; selectedDate = today; }
+            
+            // Jana butang lokasi secara automatik
+            renderLocations();
         };
+
+        /**
+         * Fungsi untuk menjana butang lokasi mengikut konfigurasi
+         */
+        function renderLocations() {
+            const grid = document.getElementById('location-grid');
+            grid.innerHTML = ''; // Kosongkan grid
+
+            LOCATIONS_CONFIG.forEach(loc => {
+                const btn = document.createElement('button');
+                
+                if (loc.isActive) {
+                    // Butang Aktif
+                    btn.className = "loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all focus:outline-none flex flex-col items-center";
+                    btn.onclick = () => selectLocation(loc.id);
+                    btn.innerHTML = `<span>${loc.name}</span>`;
+                } else {
+                    // Butang Tidak Aktif (Akan Datang)
+                    btn.disabled = true;
+                    btn.className = "loc-btn border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold text-slate-400 bg-slate-50 cursor-not-allowed flex flex-col items-center";
+                    btn.innerHTML = `
+                        <span>${loc.name}</span>
+                        <span class="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-tight italic">Akan Datang</span>
+                    `;
+                }
+                grid.appendChild(btn);
+            });
+        }
 
         function toggleStartBtn() {
             const checkbox = document.getElementById('agreeTerms');
@@ -316,10 +355,11 @@
             document.getElementById('landing-view').classList.remove('hidden'); 
         }
 
-        function selectLocation(loc) {
-            selectedLocation = loc;
+        function selectLocation(locId) {
+            selectedLocation = locId;
             document.querySelectorAll('.loc-btn').forEach(btn => {
-                const isActive = btn.innerText.includes(loc);
+                // Bandingkan dengan locId sahaja untuk pastikan ketepatan
+                const isActive = btn.innerText.split('\n')[0].trim() === locId;
                 btn.classList.toggle('border-blue-500', isActive);
                 btn.classList.toggle('bg-blue-50', isActive);
             });
